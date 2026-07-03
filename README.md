@@ -89,7 +89,5 @@ final_project/
     │   └── model1/
     │       └── rename.py
     └── visualization/          # Visualization scripts and evaluation notebooks
-        ├── EDA.ipynb
-        ├── evaluation.py
-        └── exploration.py
+        └── EDA.ipynb
 ```
