@@ -1,0 +1,35 @@
+Realtime Web Inference Latency Test
+
+Configuration:
+- Frontend: React + Vite
+- Backend: FastAPI + Ultralytics YOLO
+- Capture width: 416 px
+- Prediction interval: 100 ms
+- Test mode: local webcam realtime detection
+- Total recorded samples: 270 successful predictions
+
+Observed Results:
+- Final approximate FPS: 4.62 successful predictions per second
+- Request latency average: 107.78 ms
+- Backend total time average: 102.40 ms
+- Model inference time average: 101.21 ms
+
+Warmup-adjusted Results:
+- The first sample was slower than the rest of the run:
+  - Request latency: 327.20 ms
+  - Backend total time: 291.09 ms
+  - Model inference time: 277.79 ms
+- Excluding the first warmup sample:
+  - Request latency average: 106.97 ms
+  - Request latency range: 91.40-199.30 ms
+  - Backend total time average: 101.69 ms
+  - Backend total time range: 86.43-196.18 ms
+  - Model inference time average: 100.55 ms
+  - Model inference time range: 85.39-195.33 ms
+
+Summary:
+With VITE_CAPTURE_WIDTH=416 and VITE_PREDICTION_INTERVAL_MS=100, the local web
+app achieved approximately 4.62 successful predictions per second. Request
+latency generally stayed around 100-130 ms during stable operation, while backend
+processing was dominated by YOLO inference. The first request behaved like a
+warmup sample and was excluded from the adjusted averages.

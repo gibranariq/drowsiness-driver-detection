@@ -1,0 +1,53 @@
+Realtime Web Inference Latency Test - Adaptive Scheduling 640px Resolution
+
+Configuration:
+- Frontend: React + Vite
+- Backend: FastAPI + Ultralytics YOLO
+- Capture width: 640 px
+- Prediction interval target: 100 ms
+- Scheduling mode: adaptive recursive setTimeout
+- Test mode: local webcam realtime detection
+- Test window: 2026-07-02T11:53:24.796Z to 2026-07-02T11:54:56.371Z
+- Total recorded samples: 420 successful predictions
+
+Observed Results:
+- Final approximate FPS: 7.17 successful predictions per second
+- Request latency average: 101.35 ms
+- Backend total time average: 96.85 ms
+- Model inference time average: 95.72 ms
+- Decode time average: 1.12 ms
+- Tracker time average: 0.0002 ms
+
+Warmup-adjusted Results:
+- The first sample was slower than the rest of the run:
+  - Request latency: 229.00 ms
+  - Backend total time: 200.51 ms
+  - Model inference time: 186.59 ms
+  - Decode time: 13.90 ms
+- Excluding the first warmup sample:
+  - Request latency average: 101.05 ms
+  - Request latency range: 90.00-237.50 ms
+  - Backend total time average: 96.60 ms
+  - Backend total time range: 85.32-224.06 ms
+  - Model inference time average: 95.50 ms
+  - Model inference time range: 84.32-222.92 ms
+  - Decode time average: 1.09 ms
+  - Decode time range: 0.87-9.40 ms
+  - Tracker time average: 0.0002 ms
+
+Prediction Distribution:
+- awake detections: 337
+- drowsy detections: 79
+- no detections: 4
+- Awake status responses: 400
+- Suspected Drowsy status responses: 19
+- WARNING! status responses: 1
+- alarm_active=true responses: 1
+
+Summary:
+With VITE_CAPTURE_WIDTH=640 and a 100 ms target prediction interval, the local web
+app reached approximately 7.17 successful predictions per second. Excluding the
+first warmup request, average request latency was 101.05 ms, average backend
+processing time was 96.60 ms, and average model inference time was 95.50 ms.
+Backend processing remained dominated by YOLO inference, while decode and tracker
+times were comparatively negligible.

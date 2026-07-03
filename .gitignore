@@ -88,3 +88,11 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+venv
+PLAN.md
+test_camera.py
+mnt
+CHAT_HANDOFF.md
+alarm2.wav
+node_modules/

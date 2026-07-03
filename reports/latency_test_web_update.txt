@@ -1,0 +1,54 @@
+Realtime Web Inference Latency Test - Adaptive Scheduling Update
+
+Configuration:
+- Frontend: React + Vite
+- Backend: FastAPI + Ultralytics YOLO
+- Capture width: 416 px
+- Prediction interval target: 100 ms
+- Scheduling mode: adaptive recursive setTimeout
+- Test mode: local webcam realtime detection
+- Test window: 2026-07-02T07:21:15.887Z to 2026-07-02T07:21:51.432Z
+- Total recorded samples: 310 successful predictions
+
+Observed Results:
+- Final approximate FPS: 9.04 successful predictions per second
+- Request latency average: 100.71 ms
+- Backend total time average: 96.40 ms
+- Model inference time average: 95.59 ms
+- Decode time average: 0.80 ms
+- Tracker time average: 0.0002 ms
+
+Warmup-adjusted Results:
+- The first sample was slower than the rest of the run:
+  - Request latency: 304.90 ms
+  - Backend total time: 271.90 ms
+  - Model inference time: 258.51 ms
+  - Decode time: 13.36 ms
+- Excluding the first warmup sample:
+  - Request latency average: 100.05 ms
+  - Request latency range: 91.30-165.60 ms
+  - Backend total time average: 95.83 ms
+  - Backend total time range: 87.40-160.36 ms
+  - Model inference time average: 95.06 ms
+  - Model inference time range: 86.94-159.52 ms
+  - Decode time average: 0.76 ms
+  - Decode time range: 0.39-1.43 ms
+  - Tracker time average: 0.0001 ms
+
+Prediction Distribution:
+- awake detections: 195
+- drowsy detections: 106
+- no detections: 9
+- Awake status responses: 262
+- Suspected Drowsy status responses: 29
+- WARNING! status responses: 19
+- alarm_active=true responses: 1
+
+Summary:
+After changing the realtime loop to adaptive scheduling, the local web app
+reached approximately 9.04 successful predictions per second with
+VITE_CAPTURE_WIDTH=416 and a 100 ms target prediction interval. Excluding the
+first warmup request, average request latency was 100.05 ms, average backend
+processing time was 95.83 ms, and average model inference time was 95.06 ms.
+Backend processing remained dominated by YOLO inference, while decode and tracker
+times were comparatively negligible.

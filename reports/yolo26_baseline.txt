@@ -1,0 +1,71 @@
+===== Experiment Report =====
+Date              : 2026-06-27 04:00:25.067654
+Experiment Name   : baseline
+Train Output Path : /kaggle/working/runs/detect/drowsiness_detection/baseline
+
+===== Dataset =====
+Data YAML         : /kaggle/input/datasets/gibranariq/final-project/final_project.yolo/data.yaml
+
+===== Model =====
+Model Weight      : yolo26s.pt
+Image Size        : 640
+Best Model Path   : /kaggle/working/runs/detect/drowsiness_detection/baseline/weights/best.pt
+Last Model Path   : /kaggle/working/runs/detect/drowsiness_detection/baseline/weights/last.pt
+
+===== Training Parameters =====
+Epochs            : 100
+Batch Size        : 16
+Workers           : 4
+Seed              : 42
+Device            : 0 (Tesla T4)
+AMP               : True
+Ultralytics Ver   : 8.4.80
+PyTorch Ver       : 2.10.0+cu128
+
+===== Best Validation Metrics from Training =====
+Best Epoch                  : 29
+
+epoch                         : 29.0
+time                          : 1178.71
+train/box_loss                : 0.99631
+train/cls_loss                : 0.59547
+train/dfl_loss                : 0.01531
+metrics/precision(B)          : 0.80792
+metrics/recall(B)             : 0.84406
+metrics/mAP50(B)              : 0.90316
+metrics/mAP50-95(B)           : 0.5977
+val/box_loss                  : 1.26519
+val/cls_loss                  : 0.67922
+val/dfl_loss                  : 0.02316
+lr/pg0                        : 0.00120491
+lr/pg1                        : 0.00120491
+lr/pg2                        : 0.00120491
+
+===== Final Test Evaluation =====
+Precision (Box)   : 0.8636
+Recall (Box)      : 0.8221
+F1 Score          : 0.8424
+mAP50             : 0.9159
+mAP50-95          : 0.6077
+
+===== Test Evaluation per Class =====
+
+awake
+  Precision       : 0.9009
+  Recall          : 0.7700
+  F1 Score        : 0.8303
+  mAP50           : 0.8997
+  mAP50-95        : 0.5675
+
+drowsy
+  Precision       : 0.8263
+  Recall          : 0.8743
+  F1 Score        : 0.8496
+  mAP50           : 0.9322
+  mAP50-95        : 0.6479
+
+===== Output Files =====
+Results CSV       : /kaggle/working/runs/detect/drowsiness_detection/baseline/results.csv
+Results Plot      : /kaggle/working/runs/detect/drowsiness_detection/baseline/results.png
+Confusion Matrix  : /kaggle/working/runs/detect/drowsiness_detection/baseline/confusion_matrix.png
+PR Curve          : /kaggle/working/runs/detect/drowsiness_detection/baseline/PR_curve.png

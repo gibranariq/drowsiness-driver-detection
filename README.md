@@ -3,6 +3,36 @@ final_project
 
 A short description of the project.
 
+Deployment Commands
+------------
+
+The deployment backend can run from Docker, while the frontend still runs with
+Vite during local development.
+
+```bash
+make backend-build
+make backend-run
+```
+
+In another terminal:
+
+```bash
+make frontend-install
+make frontend-run
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173/
+```
+
+Backend checks:
+
+```bash
+make backend-test
+```
+
 Project Organization
 ------------
 

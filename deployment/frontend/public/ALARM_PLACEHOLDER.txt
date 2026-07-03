@@ -1,0 +1,3 @@
+Alarm audio is intentionally not used in Phase 3.
+
+Phase 4 will add browser-side alarm playback when backend integration is introduced.

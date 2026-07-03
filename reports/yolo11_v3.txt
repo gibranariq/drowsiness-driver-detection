@@ -1,0 +1,80 @@
+===== Experiment Report =====
+Date              : 2026-06-27 11:32:06.506790
+Experiment Name   : v3
+Train Output Path : /kaggle/working/runs/detect/drowsiness_detection/v3
+
+===== Dataset =====
+Data YAML         : /kaggle/input/datasets/gibranariq/final-project/final_project.yolo/data.yaml
+
+===== Model =====
+Model Weight      : yolo11s.pt
+Image Size        : 640
+Best Model Path   : /kaggle/working/runs/detect/drowsiness_detection/v3/weights/best.pt
+Last Model Path   : /kaggle/working/runs/detect/drowsiness_detection/v3/weights/last.pt
+
+===== Training Parameters =====
+Epochs            : 300
+Patience          : 50
+Batch Size        : 16
+Workers           : 4
+Seed              : 42
+Device            : 0 (Tesla T4)
+AMP               : True
+Optimizer         : AdamW
+lr0               : 0.0008
+lrf               : 0.01
+cos_lr            : True
+degrees           : 5.0
+shear             : 2.0
+perspective       : 0.0005
+mosaic            : 0.5
+mixup             : 0.05
+Ultralytics Ver   : 8.4.80
+PyTorch Ver       : 2.10.0+cu128
+
+===== Best Validation Metrics from Training =====
+Best Epoch                  : 73
+
+epoch                         : 73.0
+time                          : 2572.55
+train/box_loss                : 0.96283
+train/cls_loss                : 0.58666
+train/dfl_loss                : 1.22549
+metrics/precision(B)          : 0.90256
+metrics/recall(B)             : 0.89261
+metrics/mAP50(B)              : 0.92881
+metrics/mAP50-95(B)           : 0.57255
+val/box_loss                  : 1.3741
+val/cls_loss                  : 0.6187
+val/dfl_loss                  : 1.43342
+lr/pg0                        : 0.000692672
+lr/pg1                        : 0.000692672
+lr/pg2                        : 0.000692672
+===== Final Test Evaluation =====
+Precision (Box)   : 0.8424
+Recall (Box)      : 0.8895
+F1 Score          : 0.8653
+mAP50             : 0.9288
+mAP50-95          : 0.5967
+
+===== Test Evaluation per Class =====
+
+awake
+  Precision       : 0.8147
+  Recall          : 0.9718
+  F1 Score        : 0.8863
+  mAP50           : 0.9361
+  mAP50-95        : 0.5961
+
+drowsy
+  Precision       : 0.8702
+  Recall          : 0.8072
+  F1 Score        : 0.8375
+  mAP50           : 0.9215
+  mAP50-95        : 0.5973
+
+===== Output Files =====
+Results CSV       : /kaggle/working/runs/detect/drowsiness_detection/v3/results.csv
+Results Plot      : /kaggle/working/runs/detect/drowsiness_detection/v3/results.png
+Confusion Matrix  : /kaggle/working/runs/detect/drowsiness_detection/v3/confusion_matrix.png
+PR Curve          : /kaggle/working/runs/detect/drowsiness_detection/v3/PR_curve.png
