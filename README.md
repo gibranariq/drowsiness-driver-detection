@@ -37,58 +37,59 @@ Project Organization
 ------------
 
 ```
-drowsieness_driver_detection/
+final_project/
 ├── LICENSE     
 ├── README.md                  
-├── Makefile                     # Makefile with commands like `make data` or `make train`                   
-├── configs                      # Config files (models and training hyperparameters)
+├── Makefile                    # Makefile with deployment, backend, frontend, and testing commands
+├── configs/                    # Config files (models and training hyperparameters)
 │   └── model1.yaml              
 │
-├── data                         
-│   ├── external                 # Data from third party sources.
-│   ├── interim                  # Intermediate data that has been transformed.
-│   ├── processed                # The final, canonical data sets for modeling.
-│   └── raw                      # The original, immutable data dump.
+├── data/                       # Datasets
+│   ├── external/               # Data from third party sources
+│   ├── interim/                # Intermediate data that has been transformed
+│   ├── processed/              # The final, canonical data sets for modeling
+│   └── raw/                    # The original, immutable data dump
 │
-├── docs                         # Project documentation.
+├── deployment/                 # Production deployment packages
+│   ├── backend/                # FastAPI backend service
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   ├── app/                # Application routes, detection logic, and tracker
+│   │   │   ├── config.py
+│   │   │   ├── detector.py
+│   │   │   ├── main.py
+│   │   │   └── tracker.py
+│   │   └── models/             # YOLO models for backend inference
+│   │
+│   └── frontend/               # React (Vite) frontend application
+│       ├── package.json
+│       ├── vite.config.js
+│       ├── index.html
+│       ├── src/                # Frontend source code (App components, CSS, API calls)
+│       │   ├── App.jsx
+│       │   ├── api.js
+│       │   └── styles.css
+│       └── public/             # Static public assets (alarm.wav, etc.)
 │
-├── models                       # Trained and serialized models.
+├── docs/                       # Project documentation
 │
-├── notebooks                    # Jupyter notebooks.
+├── models/                     # Trained and serialized models (.pt YOLO weights)
 │
-├── references                   # Data dictionaries, manuals, and all other explanatory materials.
+├── notebooks/                  # Jupyter notebooks for model comparison and development
 │
-├── reports                      # Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures                  # Generated graphics and figures to be used in reporting.
+├── references/                 # Explanatory materials, manuals, and data dictionaries
 │
-├── requirements.txt             # The requirements file for reproducing the analysis environment.
-└── src                          # Source code for use in this project.
-    ├── __init__.py              # Makes src a Python module.
-    │
-    ├── data                     # Data engineering scripts.
-    │   ├── build_features.py    
-    │   ├── cleaning.py          
-    │   ├── ingestion.py         
-    │   ├── labeling.py          
-    │   ├── splitting.py         
-    │   └── validation.py        
-    │
-    ├── models                   # ML model engineering (a folder for each model).
-    │   └── model1      
-    │       ├── dataloader.py    
-    │       ├── hyperparameters_tuning.py 
-    │       ├── model.py         
-    │       ├── predict.py       
-    │       ├── preprocessing.py 
-    │       └── train.py         
-    │
-    └── visualization        # Scripts to create exploratory and results oriented visualizations.
-        ├── evaluation.py        
-        └── exploration.py       
+├── reports/                    # Generated latency test logs, summaries, and model benchmarks
+│   ├── latency_test_web_640.txt
+│   └── yolo11/yolo26 benchmark results
+│
+└── src/                        # Legacy/experimental source code
+    ├── data/                   
+    ├── models/                 
+    │   └── model1/
+    │       └── rename.py
+    └── visualization/          # Visualization scripts and evaluation notebooks
+        ├── EDA.ipynb
+        ├── evaluation.py
+        └── exploration.py
 ```
-
-
---------
-<p><small>Project based on the <a target="_blank" href="https://github.com/Chim-SO/cookiecutter-mlops/">cookiecutter MLOps project template</a>
-that is originally based on <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. 
-#cookiecuttermlops #cookiecutterdatascience</small></p>
