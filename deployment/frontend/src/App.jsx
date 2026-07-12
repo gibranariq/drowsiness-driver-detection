@@ -1,20 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  CAPTURE_WIDTH,
   initialPrediction,
   IS_METRICS_EXPORT_ENABLED,
-  predictFrame,
   PREDICTION_INTERVAL_MS,
 } from "./api.js";
+import { createDetector } from "./detector_tfjs.js";
+import { CONTINUOUS_DROWSY_THRESHOLD, createTracker } from "./tracker.js";
 
-const MAX_DROWSY_COUNTER = 20;
+const MAX_DROWSY_COUNTER = CONTINUOUS_DROWSY_THRESHOLD;
 const FPS_WINDOW_MS = 5000;
 const STATUS_CLASS_NAMES = {
   Awake: "awake",
   "Suspected Drowsy": "suspected",
   "WARNING!": "warning",
 };
+const BBOX_DISPLAY_PADDING = {
+  x: 0.18,
+  top: 0.05,
+  bottom: 0.35,
+};
 const initialPerformanceMetrics = {
+  totalCycleMs: null,
   requestLatencyMs: null,
   backendTotalMs: null,
   inferenceMs: null,
@@ -23,10 +29,11 @@ const initialPerformanceMetrics = {
 const CSV_COLUMNS = [
   "sample",
   "timestamp",
-  "request_latency_ms",
-  "backend_total_ms",
+  // "request_latency_ms",
+  // "backend_total_ms",
+  "total_cycle_ms",
   "inference_ms",
-  "decode_ms",
+  // "decode_ms",
   "tracker_ms",
   "approx_fps",
   "detected_label",
@@ -59,8 +66,37 @@ function formatCsvCell(value) {
   return text;
 }
 
+function getBoundingBoxStyle(bbox, video, frame) {
+  if (!bbox || !video?.videoWidth || !video?.videoHeight || !frame) {
+    return null;
+  }
+
+  const frameWidth = frame.clientWidth;
+  const frameHeight = frame.clientHeight;
+  const scale = Math.max(frameWidth / video.videoWidth, frameHeight / video.videoHeight);
+  const renderedWidth = video.videoWidth * scale;
+  const renderedHeight = video.videoHeight * scale;
+  const offsetX = (frameWidth - renderedWidth) / 2;
+  const offsetY = (frameHeight - renderedHeight) / 2;
+  const [rawX1, rawY1, rawX2, rawY2] = bbox;
+  const bboxWidth = rawX2 - rawX1;
+  const bboxHeight = rawY2 - rawY1;
+  const x1 = Math.max(0, rawX1 - bboxWidth * BBOX_DISPLAY_PADDING.x);
+  const y1 = Math.max(0, rawY1 - bboxHeight * BBOX_DISPLAY_PADDING.top);
+  const x2 = Math.min(video.videoWidth, rawX2 + bboxWidth * BBOX_DISPLAY_PADDING.x);
+  const y2 = Math.min(video.videoHeight, rawY2 + bboxHeight * BBOX_DISPLAY_PADDING.bottom);
+
+  return {
+    left: `${offsetX + x1 * scale}px`,
+    top: `${offsetY + y1 * scale}px`,
+    width: `${Math.max(0, (x2 - x1) * scale)}px`,
+    height: `${Math.max(0, (y2 - y1) * scale)}px`,
+  };
+}
+
 function App() {
   const videoRef = useRef(null);
+  const videoFrameRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const timerRef = useRef(null);
@@ -68,6 +104,8 @@ function App() {
   const isRequestInFlightRef = useRef(false);
   const previousAlarmActiveRef = useRef(false);
   const successfulPredictionTimesRef = useRef([]);
+  const detectorRef = useRef(null);
+  const trackerRef = useRef(createTracker());
   const alarmRef = useRef(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isDetectionRunning, setIsDetectionRunning] = useState(false);
@@ -89,10 +127,22 @@ function App() {
     isDetectionRunningRef.current = false;
     clearPredictionTimer();
     setIsDetectionRunning(false);
+    setPrediction(initialPrediction);
+  };
+
+  const resetTracker = () => {
+    trackerRef.current.reset();
+  };
+
+  const disposeDetector = () => {
+    detectorRef.current?.dispose();
+    detectorRef.current = null;
   };
 
   const stopCamera = () => {
     stopDetection();
+    disposeDetector();
+    resetTracker();
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -104,6 +154,7 @@ function App() {
     }
 
     setIsCameraActive(false);
+    setPrediction(initialPrediction);
   };
 
   const startCamera = async () => {
@@ -135,47 +186,49 @@ function App() {
     }
   };
 
-  const captureFrameBlob = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    if (!video || !canvas || !streamRef.current) {
-      throw new Error("Start the camera before analyzing a frame.");
+  const runBrowserInference = async () => {
+    const cycleStart = performance.now();
+    if (!detectorRef.current) {
+      detectorRef.current = await createDetector();
     }
 
-    if (!video.videoWidth || !video.videoHeight) {
-      throw new Error("Camera frame is not ready yet.");
-    }
-
-    const targetWidth = Math.min(CAPTURE_WIDTH, video.videoWidth);
-    const targetHeight = Math.round(
-      (targetWidth / video.videoWidth) * video.videoHeight,
+    const inferenceResult = await detectorRef.current.predict(
+      videoRef.current,
+      canvasRef.current,
     );
+    const inferenceMs = inferenceResult.inferenceMs;
+    const trackerStart = performance.now();
+    const trackerState = trackerRef.current.update(inferenceResult.detected_label);
+    const trackerMs = performance.now() - trackerStart;
 
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new Error("Unable to prepare the frame capture canvas.");
-    }
-
-    context.drawImage(video, 0, 0, targetWidth, targetHeight);
-
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(blob);
-            return;
-          }
-
-          reject(new Error("Unable to capture the current frame."));
-        },
-        "image/jpeg",
-        0.9,
-      );
+    console.log("Browser inference output", {
+      backend: inferenceResult.backend,
+      outputName: inferenceResult.outputName,
+      outputDims: inferenceResult.outputDims,
+      inferenceMs: Number(inferenceMs.toFixed(2)),
+      preprocessMeta: inferenceResult.preprocessMeta,
+      firstRows: inferenceResult.firstRows,
+      prediction: {
+        detected_label: inferenceResult.detected_label,
+        confidence: inferenceResult.confidence,
+        bbox: inferenceResult.bbox,
+        ...trackerState,
+      },
     });
+
+    return {
+      ...initialPrediction,
+      detected_label: inferenceResult.detected_label,
+      confidence: inferenceResult.confidence,
+      bbox: inferenceResult.bbox,
+      ...trackerState,
+      total_cycle_ms: Math.round((performance.now() - cycleStart) * 100) / 100,
+      request_latency_ms: "",
+      total_backend_ms: "",
+      inference_ms: Math.round(inferenceMs * 100) / 100,
+      decode_ms: "",
+      tracker_ms: Math.round(trackerMs * 100) / 100,
+    };
   };
 
   const playAlarm = async () => {
@@ -210,6 +263,7 @@ function App() {
     }
 
     setPerformanceMetrics({
+      totalCycleMs: result.total_cycle_ms ?? null,
       requestLatencyMs: result.request_latency_ms ?? null,
       backendTotalMs: result.total_backend_ms ?? null,
       inferenceMs: result.inference_ms ?? null,
@@ -222,10 +276,11 @@ function App() {
         {
           sample: samples.length + 1,
           timestamp: new Date().toISOString(),
-          request_latency_ms: result.request_latency_ms ?? "",
-          backend_total_ms: result.total_backend_ms ?? "",
+          // request_latency_ms: result.request_latency_ms ?? "",
+          // backend_total_ms: result.total_backend_ms ?? "",
+          total_cycle_ms: result.total_cycle_ms ?? "",
           inference_ms: result.inference_ms ?? "",
-          decode_ms: result.decode_ms ?? "",
+          // decode_ms: result.decode_ms ?? "",
           tracker_ms: result.tracker_ms ?? "",
           approx_fps: Math.round(fps * 100) / 100,
           detected_label: result.detected_label,
@@ -269,8 +324,7 @@ function App() {
     isRequestInFlightRef.current = true;
 
     try {
-      const frameBlob = await captureFrameBlob();
-      const result = await predictFrame(frameBlob);
+      const result = await runBrowserInference();
 
       if (!isDetectionRunningRef.current) {
         return;
@@ -310,10 +364,12 @@ function App() {
     }
 
     clearPredictionTimer();
+    resetTracker();
     setCameraMessage("");
+    setPrediction(initialPrediction);
     successfulPredictionTimesRef.current = [];
     setPerformanceMetrics(initialPerformanceMetrics);
-    previousAlarmActiveRef.current = prediction.alarm_active;
+    previousAlarmActiveRef.current = false;
     isDetectionRunningRef.current = true;
     setIsDetectionRunning(true);
     runPredictionCycle();
@@ -322,11 +378,21 @@ function App() {
   useEffect(() => {
     return () => {
       stopCamera();
+      disposeDetector();
     };
   }, []);
 
   const statusClassName = STATUS_CLASS_NAMES[prediction.status] || "awake";
   const confidencePercent = Math.round(prediction.confidence * 100);
+  const bboxStyle = getBoundingBoxStyle(
+    prediction.bbox,
+    videoRef.current,
+    videoFrameRef.current,
+  );
+  const bboxClassName =
+    prediction.detected_label === "drowsy" && statusClassName === "awake"
+      ? "suspected"
+      : statusClassName;
   const progressPercent = Math.min(
     (prediction.drowsy_counter / MAX_DROWSY_COUNTER) * 100,
     100,
@@ -341,7 +407,7 @@ function App() {
             <h1>Driver Drowsiness Detection</h1>
           </div>
 
-          <div className="video-frame">
+          <div ref={videoFrameRef} className="video-frame">
             <video
               ref={videoRef}
               className="webcam-video"
@@ -349,6 +415,13 @@ function App() {
               muted
               playsInline
             />
+            {isCameraActive && bboxStyle && (
+              <div className={`bbox-overlay ${bboxClassName}`} style={bboxStyle}>
+                <span className="bbox-label">
+                  {prediction.detected_label} {confidencePercent}%
+                </span>
+              </div>
+            )}
             {!isCameraActive && (
               <div className="video-placeholder">Camera is off</div>
             )}
@@ -428,6 +501,11 @@ function App() {
               <dd>{prediction.alarm_active ? "Active" : "Inactive"}</dd>
             </div>
             {/* <div className="metric">
+              <dt>Total cycle</dt>
+              <dd>{formatMetric(performanceMetrics.totalCycleMs)}</dd>
+            </div> */}
+            {/*
+            <div className="metric">
               <dt>Request latency</dt>
               <dd>{formatMetric(performanceMetrics.requestLatencyMs)}</dd>
             </div>
@@ -435,7 +513,8 @@ function App() {
               <dt>Backend total</dt>
               <dd>{formatMetric(performanceMetrics.backendTotalMs)}</dd>
             </div>
-            <div className="metric">
+            */}
+            {/* <div className="metric">
               <dt>Model inference</dt>
               <dd>{formatMetric(performanceMetrics.inferenceMs)}</dd>
             </div> */}

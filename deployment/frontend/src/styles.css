@@ -104,6 +104,45 @@ h2 {
   background: #162126;
 }
 
+.bbox-overlay {
+  position: absolute;
+  z-index: 2;
+  border: 3px solid #2f9a68;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.bbox-overlay.suspected {
+  border-color: #d9a441;
+}
+
+.bbox-overlay.warning {
+  border-color: #c3453b;
+}
+
+.bbox-label {
+  position: absolute;
+  left: -3px;
+  bottom: 100%;
+  max-width: min(220px, 80vw);
+  padding: 4px 7px;
+  color: #ffffff;
+  background: #23715b;
+  border-radius: 4px 4px 0 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.bbox-overlay.suspected .bbox-label {
+  background: #b18122;
+}
+
+.bbox-overlay.warning .bbox-label {
+  background: #c3453b;
+}
+
 .camera-controls {
   display: flex;
   flex-wrap: wrap;

@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-const DEFAULT_PREDICTION_INTERVAL_MS = 500;
-const DEFAULT_CAPTURE_WIDTH = 416;
+const DEFAULT_PREDICTION_INTERVAL_MS = 100;
+const DEFAULT_CAPTURE_WIDTH = 640;
 const ENABLE_METRICS_EXPORT =
   import.meta.env.VITE_ENABLE_METRICS_EXPORT === "true";
 
@@ -30,6 +30,8 @@ export const initialPrediction = {
   alarm_active: false,
 };
 
+// Legacy backend inference helper. The active UI uses client-side TF.js
+// inference; keep this as a fallback/reference for the FastAPI /predict path.
 export async function predictFrame(frameBlob) {
   const formData = new FormData();
   formData.append("file", frameBlob, "frame.jpg");

@@ -8,7 +8,7 @@ from ultralytics import YOLO
 # Configuration
 # =========================
 MODEL_PATH = "/Users/gibranariq/Documents/Dibimbing/final_project/models/yolo26_v3.pt"
-ALARM_PATH = "/Users/gibranariq/Documents/Dibimbing/final_project/mixkit-security-facility-breach-alarm-994.wav"
+ALARM_PATH = "/Users/gibranariq/Documents/Dibimbing/final_project/deployment/frontend/public/alarm.wav"
 
 CONF_THRESHOLD = 0.40
 IOU_THRESHOLD = 0.70
