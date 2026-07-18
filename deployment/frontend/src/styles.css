@@ -1,11 +1,48 @@
 :root {
-  color: #182026;
-  background: #f4f7f8;
+  --page-bg: #f4f7f8;
+  --panel-bg: #ffffff;
+  --text-primary: #182026;
+  --text-secondary: #62707a;
+  --text-muted: #697780;
+  --text-body: #45545d;
+  --border: #d8e0e3;
+  --divider: #e2e8eb;
+  --input-border: #aebbc1;
+  --button-secondary-text: #1d3038;
+  --progress-track: #dfe7ea;
+  --guide-bg: #eef5ff;
+  --guide-border: #c9ddf7;
+  --guide-text: #26364a;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --shadow: rgba(27, 39, 44, 0.08);
+  color: var(--text-primary);
+  background: var(--page-bg);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="dark"] {
+  --page-bg: #101923;
+  --panel-bg: #182635;
+  --text-primary: #edf3f7;
+  --text-secondary: #aab9c5;
+  --text-muted: #9aabb8;
+  --text-body: #c3d0d9;
+  --border: #314556;
+  --divider: #2d4051;
+  --input-border: #53697a;
+  --button-secondary-text: #edf3f7;
+  --progress-track: #304454;
+  --guide-bg: #1d3045;
+  --guide-border: #3d5d7f;
+  --guide-text: #f3f6fa;
+  --accent: #70a7ff;
+  --accent-hover: #98c1ff;
+  --shadow: rgba(0, 0, 0, 0.22);
 }
 
 * {
@@ -16,6 +53,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  color: var(--text-primary);
+  background: var(--page-bg);
 }
 
 button {
@@ -25,6 +64,7 @@ button {
 .app-shell {
   min-height: 100vh;
   padding: 32px;
+  background: var(--page-bg);
 }
 
 .workspace {
@@ -35,12 +75,58 @@ button {
   margin: 0 auto;
 }
 
+.status-column {
+  align-self: start;
+}
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(1160px, 100%);
+  margin: 18px auto 0;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;  
+}
+
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer-links svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.footer-links a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
 .camera-panel,
 .status-card {
-  background: #ffffff;
-  border: 1px solid #d8e0e3;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 16px 40px rgba(27, 39, 44, 0.08);
+  box-shadow: 0 16px 40px var(--shadow);
 }
 
 .camera-panel {
@@ -48,12 +134,51 @@ button {
 }
 
 .page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  margin-top: 2px;
+  padding: 0;
+  color: var(--text-primary);
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .eyebrow {
   margin: 0 0 6px;
-  color: #62707a;
+  color: var(--text-secondary);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -63,7 +188,7 @@ button {
 h1,
 h2 {
   margin: 0;
-  color: #182026;
+  color: var(--text-primary);
   letter-spacing: 0;
 }
 
@@ -83,7 +208,7 @@ h2 {
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid #bdc9ce;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   background: #162126;
 }
@@ -176,9 +301,9 @@ h2 {
 }
 
 .button.secondary {
-  color: #1d3038;
-  background: #ffffff;
-  border-color: #aebbc1;
+  color: var(--button-secondary-text);
+  background: var(--panel-bg);
+  border-color: var(--input-border);
 }
 
 .button.analyze {
@@ -211,7 +336,7 @@ h2 {
   align-items: center;
   gap: 14px;
   padding-bottom: 18px;
-  border-bottom: 1px solid #e2e8eb;
+  border-bottom: 1px solid var(--divider);
 }
 
 .status-header.awake h2 {
@@ -252,7 +377,7 @@ h2 {
 .metric {
   min-height: 88px;
   padding: 12px 0;
-  border-bottom: 1px solid #e2e8eb;
+  border-bottom: 1px solid var(--divider);
 }
 
 .metric.wide {
@@ -261,13 +386,13 @@ h2 {
 
 .metric dt {
   margin: 0 0 10px;
-  color: #697780;
+  color: var(--text-muted);
   font-size: 0.82rem;
 }
 
 .metric dd {
   margin: 0;
-  color: #19252b;
+  color: var(--text-primary);
   font-size: 1.35rem;
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -282,7 +407,7 @@ h2 {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 8px;
-  color: #45545d;
+  color: var(--text-body);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -291,7 +416,7 @@ h2 {
   height: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: #dfe7ea;
+  background: var(--progress-track);
 }
 
 .progress-value {
@@ -308,15 +433,48 @@ h2 {
   background: #c3453b;
 }
 
+.drowsy-guide {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border: 1px solid var(--guide-border);
+  border-radius: 10px;
+  background: var(--guide-bg);
+  color: var(--guide-text);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.drowsy-guide-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #347be5;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.drowsy-guide p {
+  margin: 0;
+}
+
 .export-panel {
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #e2e8eb;
+  border-top: 1px solid var(--divider);
 }
 
 .export-count {
   margin: 0 0 10px;
-  color: #45545d;
+  color: var(--text-body);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -334,6 +492,11 @@ h2 {
 
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .app-footer {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

@@ -43,6 +43,7 @@ const CSV_COLUMNS = [
   "warning_counter",
   "alarm_active",
 ];
+const THEME_STORAGE_KEY = "drowsiness-detection-theme";
 
 function formatMetric(value, suffix = "ms") {
   if (value === null || value === undefined) {
@@ -115,6 +116,25 @@ function App() {
     initialPerformanceMetrics,
   );
   const [metricSamples, setMetricSamples] = useState([]);
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem(THEME_STORAGE_KEY) === "dark"
+        ? "dark"
+        : "light";
+    } catch {
+      return "light";
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Theme still applies for the current session when storage is unavailable.
+    }
+  }, [theme]);
 
   const clearPredictionTimer = () => {
     if (timerRef.current) {
@@ -403,8 +423,28 @@ function App() {
       <section className="workspace">
         <div className="camera-panel">
           <div className="page-heading">
-            <p className="eyebrow">Webcam monitor</p>
-            <h1>Driver Drowsiness Detection</h1>
+            <div>
+              <p className="eyebrow">Webcam monitor</p>
+              <h1>Driver Drowsiness Detection</h1>
+            </div>
+            <button
+              className="theme-toggle"
+              type="button"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+              title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            >
+              {theme === "light" ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 8.5 8.5 0 1 0 20.5 15.5Z" />
+                </svg>
+              )}
+            </button>
           </div>
 
           <div ref={videoFrameRef} className="video-frame">
@@ -470,9 +510,9 @@ function App() {
           )}
         </div>
 
-        <aside className="status-card">
+        <div className="status-column">
+          <aside className="status-card">
           <div className={`status-header ${statusClassName}`}>
-            <span className={`status-dot ${statusClassName}`} />
             <div>
               <p className="eyebrow">Current status</p>
               <h2>{prediction.status}</h2>
@@ -562,8 +602,58 @@ function App() {
               </div>
             </div>
           )}
-        </aside>
+          </aside>
+
+          <div className="drowsy-guide">
+            <span className="drowsy-guide-icon" aria-hidden="true">i</span>
+            <p>
+              Alarm activates after 20 consecutive drowsy frames or 3 warning
+              events.
+            </p>
+          </div>
+        </div>
       </section>
+
+      <footer className="app-footer">
+        <span>&copy; 2026 Gibran Ariq Natakusuma. All rights reserved.</span>
+        <nav className="footer-links" aria-label="Contact links">
+          <a href="mailto:gibranariq15@gmail.com" aria-label="Email Gibran Ariq Natakusuma" title="Email">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 5h18v14H3z" />
+              <path d="m3 7 9 6 9-6" />
+            </svg>
+            <span>Email</span>
+          </a>
+          <a
+            href="https://www.linkedin.com/in/gibranariqnatakusuma/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="LinkedIn profile"
+            title="LinkedIn"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 8v11" />
+              <path d="M5 5v.01" />
+              <path d="M9 19V8" />
+              <path d="M9 12c0-2 1.3-4 4-4 2.2 0 3.5 1.4 3.5 4v7" />
+              <path d="M16.5 12v7" />
+            </svg>
+            <span>LinkedIn</span>
+          </a>
+          <a
+            href="https://github.com/gibranariq?tab=repositories"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub repositories"
+            title="GitHub"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 19c-4 1.3-4-2-5.5-2.5M14.5 21v-3.2c0-.9.1-1.4-.4-2 2.7-.3 5.5-1.3 5.5-6a4.7 4.7 0 0 0-1.3-3.3A4.4 4.4 0 0 0 18.2 3S17 2.6 14.5 4a11.5 11.5 0 0 0-5 0C7 2.6 5.8 3 5.8 3a4.4 4.4 0 0 0-.1 3.5 4.7 4.7 0 0 0-1.3 3.3c0 4.7 2.8 5.7 5.5 6-.5.4-.5 1.1-.4 2V21" />
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+      </footer>
     </main>
   );
 }
